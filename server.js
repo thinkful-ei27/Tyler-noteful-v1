@@ -11,15 +11,20 @@ const data = require('./db/notes');
 const app = express();
 
 app.use(express.static('public'));
-// add static server
+
 
 app.listen(8080, function() {
   console.info(`server listening on ${this.address().port}`);
 }).on('error', err => {
   console.error(err);
 });
-app.get
+
 
 app.get('/api/notes', (req, res) => {
   res.json(data);
+});
+
+app.get('/api/notes/:id', (req, res) => {
+  const item = data.find(item => item.id === Number(req.params.id));
+  res.json(item);
 });
