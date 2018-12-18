@@ -9,36 +9,70 @@ const{ PORT } = require('./config');
 const { logger } = require('./middleware/logger');
 const app = express();
 
+app.use(logger);
+app.use(express.static('public'));
+app.use(express.json());
 // Load array of notes
-const data = require('./db/notes');
+// const data = require('./db/notes');
 
 // Simple In-Memory Database
 const data = require('./db/notes');
 const simDB = require('./db/simDB');  // <<== add this
 const notes = simDB.initialize(data); // <<== and this
 
-app.use(express.static('public'));
-app.use(logger);
 
 
 
-app.get('/api/notes', (req, res) => {
+
+app.get('/api/notes', (req, res, next) => {
+  const { searchTerm } = req.query;
+
+  notes.filter(searchTerm, (err, list) => {
+    if (err) {
+      return next(err); // goes to error handler
+    }
+    res.json(list); // responds with filtered array
+  });
+});
   
-  const searched = req.query.searchTerm;
-  if(searched){
-    let newArticles = data.filter(item => {
-      return item.title.includes(searched);
-    });
-    res.json(newArticles);
+  
 
-  }else{
-    res.json(data);
-  }
+
+app.get('/api/notes/:id', (req, res, next) => {
+  // const item = data.find(item => item.id === Number(req.params.id));
+  // res.json(item);
+  const { id } = req.params;
+  notes.find(id, (err, list) => {
+    if (err) {
+      return next(err);
+    }
+    res.json(list);
+  });
 });
 
-app.get('/api/notes/:id', (req, res) => {
-  const item = data.find(item => item.id === Number(req.params.id));
-  res.json(item);
+app.put('/api/notes/:id', (req, res, next) => {
+  const id = req.params.id;
+
+  /***** Never trust users - validate input *****/
+  const updateObj = {};
+  const updateFields = ['title', 'content'];
+
+  updateFields.forEach(field => {
+    if (field in req.body) {
+      updateObj[field] = req.body[field];
+    }
+  });
+
+  notes.update(id, updateObj, (err, item) => {
+    if (err) {
+      return next(err);
+    }
+    if (item) {
+      res.json(item);
+    } else {
+      next();
+    }
+  });
 });
 
 app.get('/boom', (req, res, next) => {
