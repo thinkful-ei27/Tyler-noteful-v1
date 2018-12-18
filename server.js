@@ -12,6 +12,10 @@ const app = express();
 // Load array of notes
 const data = require('./db/notes');
 
+// Simple In-Memory Database
+const data = require('./db/notes');
+const simDB = require('./db/simDB');  // <<== add this
+const notes = simDB.initialize(data); // <<== and this
 
 app.use(express.static('public'));
 app.use(logger);
