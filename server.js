@@ -4,16 +4,17 @@
 
 
 console.log('Hello Noteful!');
-
+const{ PORT } = require('./config');
 // INSERT EXPRESS APP CODE HERE...
 const express = require('express');
 const data = require('./db/notes');
 const app = express();
+const { logger } = require('./middleware/logger');
 
 app.use(express.static('public'));
+app.use(logger);
 
-
-app.listen(8080, function() {
+app.listen(PORT, function() {
   console.info(`server listening on ${this.address().port}`);
 }).on('error', err => {
   console.error(err);
