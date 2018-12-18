@@ -1,24 +1,20 @@
 'use strict';
 
-// Load array of notes
+
 
 
 console.log('Hello Noteful!');
-const{ PORT } = require('./config');
-// INSERT EXPRESS APP CODE HERE...
 const express = require('express');
-const data = require('./db/notes');
-const app = express();
+const{ PORT } = require('./config');
 const { logger } = require('./middleware/logger');
+const app = express();
+
+// Load array of notes
+const data = require('./db/notes');
+
 
 app.use(express.static('public'));
 app.use(logger);
-
-app.listen(PORT, function() {
-  console.info(`server listening on ${this.address().port}`);
-}).on('error', err => {
-  console.error(err);
-});
 
 
 
@@ -39,4 +35,28 @@ app.get('/api/notes', (req, res) => {
 app.get('/api/notes/:id', (req, res) => {
   const item = data.find(item => item.id === Number(req.params.id));
   res.json(item);
+});
+
+app.get('/boom', (req, res, next) => {
+  throw new Error('Boom!!');
+});
+
+app.use(function (req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  res.status(404).json({ message: 'Not Found' });
+});
+
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({
+    message: err.message,
+    error: err
+  });
+});
+
+app.listen(PORT, function() {
+  console.info(`server listening on ${this.address().port}`);
+}).on('error', err => {
+  console.error(err);
 });
