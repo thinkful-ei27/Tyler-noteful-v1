@@ -8,8 +8,9 @@ const express = require('express');
 const{ PORT } = require('./config');
 const { logger } = require('./middleware/logger');
 const app = express();
+const morgan = require('morgan');
 
-app.use(logger);
+app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.json());
 // Load array of notes
