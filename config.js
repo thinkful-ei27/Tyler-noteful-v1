@@ -1,1 +1,7 @@
-module.exports.PORT = 8080;
+'use strict';
+
+const PORT = process.env.PORT || 8080;
+
+module.exports = {
+  PORT
+};
